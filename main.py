@@ -4,7 +4,7 @@ import alpaca_trade_api as tradeapi
 from dotenv import load_dotenv
 import os
 import pandas as pd
-from alpaca_trade_api.rest import TimeFrame, TimeFrameUnit
+import questionary
 
 # load environment variables and import API keys
 
@@ -17,26 +17,23 @@ alpaca = tradeapi.REST(
     alpaca_secret_key,
     api_version="v2")
 
-# import the tickers of the observed stocks
-"""
-TO BE FIXED *** eliminate '\n' and spaces in the imported list
-stock_list = []
+# make the user decide the stocks he wants to keep track of
 
-with open('./input/stocks.txt') as s:
-    for stock in s:
-        stock_list.append(str(stock))
-"""
+tickers = questionary.checkbox(
+    'Select the tickers you want to keep track of',
+    choices=['AMZN','AAPL','TSLA','NFLX','GOOG']
+).ask()
+
 
 """Initialize the first dataframe"""
 
 # Format current date as ISO format
-start_date = pd.Timestamp("2022-02-10", tz="UTC").isoformat()
-end_date = pd.Timestamp.utcnow().isoformat()
-tickers = ['MSFT', 'AAPL', 'TSLA', 'NFLX']
+start_date = (pd.Timestamp.utcnow() - pd.Timedelta(4,'h')).isoformat()
+end_date = pd.Timestamp.utcnow().isoformat() 
 # timeframe = '15m'
 stocks_data = alpaca.get_barset(
     tickers,
-    '15Min',
+    '5Min',
     start = start_date,
     end = end_date
 ).df
@@ -47,16 +44,16 @@ while True:
     
     c = False
     while c == False:
-        if (datetime.now().minute % int(15) == 0 and
-            stocks_data.index[-1].minute != datetime.now().minute
-            ):
+        if (pd.Timestamp.utcnow().minute % int(5) == 0 and
+            stocks_data.index[-1].minute != pd.Timestamp.utcnow().minute
+        ):
             c = True
     #exit the while loop and update the dataframe
 
     stocks_data = alpaca.get_barset(
-    tickers,
-    '15Min',
-    start = start_date,
-    end = end_date
-).df
-    update data.....
+        tickers,
+        '5Min',
+        start = start_date,
+        end = pd.Timestamp.utcnow().isoformat()
+    ).df
+    print(stocks_data)
