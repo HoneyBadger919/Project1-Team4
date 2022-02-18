@@ -26,6 +26,13 @@ tickers = questionary.checkbox(
     choices=['AMZN','AAPL','TSLA','NFLX','GOOG']
 ).ask()
 
+timeframe = questionary.select(
+    'Select the timeframe you want to base your strategy on:',
+    choices=['1Min','5Min','15Min']
+).ask()
+
+t_num = timeframe.split('Min')[0]
+
 
 """Initialize the first dataframe"""
 
@@ -35,7 +42,7 @@ end_date = pd.Timestamp.utcnow().isoformat()
 # timeframe = '15m'
 stocks_data = alpaca.get_barset(
     tickers,
-    '1Min',
+    timeframe,
     start = start_date,
     end = end_date
 ).df
@@ -47,7 +54,7 @@ while True:
     
     c = False
     while c == False:
-        if (pd.Timestamp.utcnow().minute % int(1) == 0 and
+        if (pd.Timestamp.utcnow().minute % int(t_num) == 0 and
             stocks_data.index[-1].minute != pd.Timestamp.utcnow().minute
         ):
             c = True
@@ -55,7 +62,7 @@ while True:
 
     stocks_data = alpaca.get_barset(
         tickers,
-        '1Min',
+        timeframe,
         start = start_date,
         end = pd.Timestamp.utcnow().isoformat()
     ).df
