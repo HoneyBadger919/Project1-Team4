@@ -1,4 +1,0 @@
-MSFT
-TSLA
-AAPL
-GOOG     
