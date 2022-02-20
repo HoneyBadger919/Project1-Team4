@@ -90,29 +90,30 @@ while True:
     rsi_signals=pd.concat([rsi_buy.iloc[-1],rsi_sell.iloc[-1]],axis=1)
     rsi_signals.columns=['RSI Buy', 'RSI Sell']
 
-
-    # calculate macd for dataframe
+    # calculate ma for dataframe
     ma_short = close_df.ewm(span=12, adjust=False).mean()
     ma_long = close_df.ewm(span=26, adjust=False).mean()
-
+    
+    # code to generate signals and dataframe
+    ma_sell = ((ma_short <= ma_long) & (ma_short.shift(1) >= ma_long.shift(1)))
+    ma_buy = ((ma_short >= ma_long) & (ma_short.shift(1) <= ma_long.shift(1)))
 
     ma_signals=pd.concat([ma_buy.iloc[-1], ma_sell.iloc[-1]], axis=1)
     ma_signals.columns=['MA Buy','MA Sell']
     all_signals=pd.concat([rsi_signals,ma_signals],axis=1)
    
-
+# code for SMS message
 def send(message):
         # Replace the number with your own @ carrier and gmail address and password. *Not secure*
         to_number = '1234567890@vtext.com'
         auth = ('email@gmail.com','password')
-        # Establish a secure session with gmail’s outgoing SMTP server using your gmail account
         server = smtplib.SMTP('smtp.gmail.com', 587 )
         server.starttls()
         server.login(auth[0], auth[1])
         # Send text message through SMS gateway of destination number
         server.sendmail( auth[0], to_number, message)
 
-
+# send message if any values in dataframe are true
 if True in all_signals.values:
     some_text = f'you have a stock signal {all_signals}'
     send(some_text)
