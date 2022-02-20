@@ -4,6 +4,7 @@ import os
 import pandas as pd
 import questionary
 import smtplib #added for sms
+from utils import send
 
 
 # load environment variables and import API keys
@@ -101,19 +102,9 @@ while True:
     ma_signals=pd.concat([ma_buy.iloc[-1], ma_sell.iloc[-1]], axis=1)
     ma_signals.columns=['MA Buy','MA Sell']
     all_signals=pd.concat([rsi_signals,ma_signals],axis=1)
-   
-# code for SMS message
-def send(message):
-        # Replace the number with your own @ carrier and gmail address and password. *Not secure*
-        to_number = '1234567890@vtext.com'
-        auth = ('email@gmail.com','password')
-        server = smtplib.SMTP('smtp.gmail.com', 587 )
-        server.starttls()
-        server.login(auth[0], auth[1])
-        # Send text message through SMS gateway of destination number
-        server.sendmail( auth[0], to_number, message)
+    
 
-# send message if any values in dataframe are true
-if True in all_signals.values:
-    some_text = f'you have a stock signal {all_signals}'
-    send(some_text)
+    # send message if any values in dataframe are true
+    if True in all_signals.values:
+        some_text = f'you have a stock signal {all_signals}'
+        send(some_text)
