@@ -1,6 +1,7 @@
 # Project1-Team4
 
 ## Introduction
+In this application, users receive SMS alerts for technical indicators on a list of stocks. 
 
 ## Set up
 
